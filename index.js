@@ -1,29 +1,28 @@
 const express = require("express");
-const { default: mongoose } = require("mongoose");
-const router = express.router;
-const userController = require("./src/controller/userController");
-const cors=require('cors');
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const Cors = require("cors");
+const otpAuth = require("./routes/otp-auth");
+const user = require("./routes/user");
+const contentPost = require("./routes/content-post");
 
+//App config
 const app = express();
+const port = process.env.PORT || 8002;
+
+//middleware
+dotenv.config();
+app.use(Cors());
 app.use(express.json());
-app.use(cors());
 
-
-const port = 7000;
-
-const db_url = "mongodb+srv://manish:manish@cluster0.5qvhfff.mongodb.net/";
-
+//DB config
 mongoose
-  .connect(db_url)
-  .then(() => {
-    console.log("database connected");
-  })
-  .catch((err) => {
-    console.log("error occur", err);
-  });
+  .connect(process.env.MONGO_URL)
+  .then(() => console.log("Connected to DB"))
+  .catch((err) => console.log(err));
 
-  app.use("/api", userController);
+app.use("/api/otp", otpAuth);
+app.use("/api/user", user);
+app.use("/api/content", contentPost);
 
-app.listen(port, () => {
-  console.log(`server os on port  ${port}`);
-});
+app.listen(port, () => console.log(`server is up on ${port}`));
